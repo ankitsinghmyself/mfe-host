@@ -1,24 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Suspense } from "react";
+
+// ✅ STATIC imports (REQUIRED for Module Federation)
+const DashboardApp = React.lazy(() => import("dashboard/App"));
+const ProfileApp = React.lazy(() => import("profile/App"));
+
+// Optional Error Boundary (recommended)
+class ErrorBoundary extends React.Component<any, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Failed to load remote.</div>;
+    }
+    return this.props.children;
+  }
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Host App</h1>
+
+      <ErrorBoundary>
+        <Suspense fallback={<div>Loading Dashboard...</div>}>
+          <DashboardApp />
+        </Suspense>
+      </ErrorBoundary>
+
+      <ErrorBoundary>
+        <Suspense fallback={<div>Loading Profile...</div>}>
+          <ProfileApp />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }
