@@ -7,8 +7,8 @@ webpackConfig.plugins.push(
         new ModuleFederationPlugin({
           name: "host",
           remotes: {
-            dashboard: "dashboard@http://localhost:3001/remoteEntry.js",
-            profile: "profile@http://localhost:3002/remoteEntry.js",
+            dashboard: "dashboard@https://mfe-remote-dashboard.vercel.app//remoteEntry.js",
+            profile: "profile@mfe-remote-profile.vercel.app/remoteEntry.js",
           },
           shared: {
             react: { singleton: true, requiredVersion: false },
