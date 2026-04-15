@@ -8,7 +8,7 @@ webpackConfig.plugins.push(
           name: "host",
           remotes: {
             dashboard: "dashboard@https://mfe-remote-dashboard.vercel.app//remoteEntry.js",
-            profile: "profile@mfe-remote-profile.vercel.app/remoteEntry.js",
+            profile: "profile@https://mfe-remote-profile.vercel.app/remoteEntry.js",
           },
           shared: {
             react: { singleton: true, requiredVersion: false },
