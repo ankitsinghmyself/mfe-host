@@ -1,46 +1,104 @@
-# Getting Started with Create React App
+# MFE Host Shell App 🚀
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![React](https://img.shields.io/badge/React-19.2.5-brightgreen)](https://reactjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue)](https://www.typescriptlang.org)
+[![Webpack Module Federation](https://img.shields.io/badge/Module_Federation-Enabled-orange)](https://webpack.js.org/concepts/module-federation/)
+[![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel)](https://mfe-host-rosy.vercel.app)
 
-## Available Scripts
+## Overview
+This is the **Host Shell** application for the Micro Frontend (MFE) Demo. It uses [Webpack 5 Module Federation](https://webpack.js.org/concepts/module-federation/) to dynamically load remote MFEs:
 
-In the project directory, you can run:
+- **Dashboard** (`/dashboard`): Loaded from `dashboard@https://mfe-remote-dashboard.vercel.app/remoteEntry.js`
+- **Profile** (`/profile`): Loaded from `profile@https://mfe-remote-profile.vercel.app/remoteEntry.js`
 
-### `npm start`
+**Live Demo**: [mfe-host-rosy.vercel.app](https://mfe-host-rosy.vercel.app)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Features
+- React Router for navigation (`/dashboard` | `/profile`)
+- Lazy-loading remotes with Suspense fallback
+- Shared singleton dependencies (React, React-DOM, React Router)
+- Responsive layout with Header & Sidebar
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Module Federation Config
+See `craco.config.js`:
 
-### `npm test`
+```js
+new ModuleFederationPlugin({
+  name: \"host\",
+  remotes: {
+    dashboard: \"dashboard@https://mfe-remote-dashboard.vercel.app/remoteEntry.js\",
+    profile: \"profile@https://mfe-remote-profile.vercel.app/remoteEntry.js\",
+  },
+  shared: {
+    react: { singleton: true },
+    \"react-dom\": { singleton: true },
+    \"react-router-dom\": { singleton: true },
+  },
+});
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Quick Start
 
-### `npm run build`
+### Prerequisites
+- Node.js 18+
+- Yarn/NPM
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Local Development
+1. **Start Remotes** (different ports):
+   ```bash
+   # Terminal 1: Dashboard (port 3001)
+   cd remote-dashboard
+   npm install
+   npm start  # Uses PORT=3001 (update package.json if needed)
+   
+   # Terminal 2: Profile (port 3002)
+   cd remote-profile
+   npm install
+   npm start  # PORT=3002
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Start Host** (port 3000):
+   ```bash
+   cd host
+   npm install
+   npm start
+   ```
+   
+   **Note**: Update `craco.config.js` remotes to local URLs for dev:
+   ```
+   dashboard: \"dashboard@http://localhost:3001/remoteEntry.js\",
+   profile: \"profile@http://localhost:3002/remoteEntry.js\",
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Open [http://localhost:3000](http://localhost:3000)
 
-### `npm run eject`
+### Build & Production
+```bash
+cd host && npm run build  # Outputs to build/
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Project Structure
+```
+host/
+├── craco.config.js       # Module Federation
+├── src/
+│   ├── App.tsx           # Router + lazy remotes
+│   ├── bootstrap.tsx     # Entry
+│   └── components/       # Header, Sidebar, Layout
+├── public/
+└── package.json
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Deployment
+- Push to GitHub → Vercel auto-deploys.
+- Remotes must be deployed first (update host remotes URLs).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Troubleshooting
+- **Remote load fails**: Check remoteEntry.js URLs, CORS, singleton conflicts.
+- **Shared deps mismatch**: Ensure all apps use same React version.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Contributing
+See root [README.md](../README.md) for monorepo guidelines.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+### License
+MIT
